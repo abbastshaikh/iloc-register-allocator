@@ -24,7 +24,9 @@ void rename (std::string filename) {
          Renamer renamer;
          renamer.rename(rep);
 
-         rep.operations->print();
+         for (Operation op: rep.operations){
+            std::cout << op.printVR() << std::endl;
+         }
       } catch (ParseFailedException& e) {
          std::cerr << "Due to syntax errors, run terminates." << std::endl;
       }

@@ -1,14 +1,13 @@
 #pragma once
 
 #include <Scanner.hpp>
-#include <LinkedList.hpp>
 #include <Operation.hpp>
 #include <string>
 #include <exception>
+#include <list>
 
 struct InternalRepresentation {
-    int count;
-    LinkedList<Operation>* operations;
+    std::list<Operation> operations;
 };
 
 class InvalidTokenException : public std::exception {
