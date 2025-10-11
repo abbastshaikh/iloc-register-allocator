@@ -7,7 +7,7 @@
 // TODO: Computation of MAXLIVE
 // How to handle use has no definition?
 
-int Renamer::rename(InternalRepresentation& rep){
+void Renamer::rename(InternalRepresentation& rep){
 
     int VRName = 0;
     int index = rep.operations.size();
@@ -74,5 +74,6 @@ int Renamer::rename(InternalRepresentation& rep){
         maxLive = std::max(maxLive, live);
     }
 
-    return maxLive;
+    rep.maxVR = VRName;
+    rep.maxLive = maxLive;
 }

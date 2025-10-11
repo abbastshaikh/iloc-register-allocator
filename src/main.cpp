@@ -46,10 +46,10 @@ void allocator (std::string filename, int k) {
          InternalRepresentation rep = parser.parse();
 
          Renamer renamer;
-         int maxLive = renamer.rename(rep);
+         renamer.rename(rep);
 
          Allocator allocator;
-         allocator.allocate(rep, k, maxLive);
+         allocator.allocate(rep, k);
 
          // TODO: print PR
          // for (Operation op: rep.operations){

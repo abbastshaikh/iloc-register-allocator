@@ -4,5 +4,5 @@
 
 class Renamer {
 public:
-    int rename(InternalRepresentation& rep);
+    void rename(InternalRepresentation& rep);
 };

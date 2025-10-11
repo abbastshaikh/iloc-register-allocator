@@ -6,7 +6,7 @@
 
 InternalRepresentation Parser::parse() {
     
-    std::vector<Operation> operations;
+    std::list<Operation> operations;
     int maxSR = -1;
     int error = 0;
 
