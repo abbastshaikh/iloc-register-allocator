@@ -2,9 +2,12 @@
 #include <Scanner.hpp>
 #include <Operation.hpp>
 #include <iostream>
+#include <algorithm>
 
 InternalRepresentation Parser::parse() {
-    std::list<Operation> operations;
+    
+    std::vector<Operation> operations;
+    int maxSR = -1;
     int error = 0;
 
     Token token = scanner.nextToken();    
@@ -13,7 +16,9 @@ InternalRepresentation Parser::parse() {
         switch (token.category) {
             case Category::CAT_MEMOP:
                 try {
-                    operations.push_back(this->finishMEMOP(static_cast<Opcode>(token.lexeme)));
+                    Operation op = this->finishMEMOP(static_cast<Opcode>(token.lexeme));
+                    operations.push_back(op);
+                    maxSR = std::max({maxSR, op.op1.SR, op.op3.SR});
                 } catch (const InvalidTokenException& e) {
                     this->handleInvalidToken(e);
                     error++;
@@ -21,7 +26,9 @@ InternalRepresentation Parser::parse() {
                 break;
             case Category::CAT_LOADI:
                 try {
-                    operations.push_back(finishLOADI(static_cast<Opcode>(token.lexeme)));
+                    Operation op = this->finishLOADI(static_cast<Opcode>(token.lexeme));
+                    operations.push_back(op);
+                    maxSR = std::max({maxSR, op.op3.SR});
                 } catch (const InvalidTokenException& e) {
                     this->handleInvalidToken(e);
                     error++;
@@ -29,7 +36,9 @@ InternalRepresentation Parser::parse() {
                 break;
             case Category::CAT_ARITHOP:
                 try {
-                    operations.push_back(finishARITHOP(static_cast<Opcode>(token.lexeme)));
+                    Operation op = this->finishARITHOP(static_cast<Opcode>(token.lexeme));
+                    operations.push_back(op);
+                    maxSR = std::max({maxSR, op.op1.SR, op.op2.SR, op.op3.SR});
                 } catch (const InvalidTokenException& e) {
                     this->handleInvalidToken(e);
                     error++;
@@ -37,7 +46,7 @@ InternalRepresentation Parser::parse() {
                 break;
             case Category::CAT_OUTPUT:
                 try {
-                    operations.push_back(finishOUTPUT(static_cast<Opcode>(token.lexeme)));
+                    operations.push_back(this->finishOUTPUT(static_cast<Opcode>(token.lexeme)));
                 } catch (const InvalidTokenException& e) {
                     this->handleInvalidToken(e);
                     error++;
@@ -45,7 +54,7 @@ InternalRepresentation Parser::parse() {
                 break;
             case Category::CAT_NOP:
                 try {
-                    operations.push_back(finishNOP(static_cast<Opcode>(token.lexeme)));
+                    operations.push_back(this->finishNOP(static_cast<Opcode>(token.lexeme)));
                 } catch (const InvalidTokenException& e) {
                     this->handleInvalidToken(e);
                     error++;
@@ -63,7 +72,7 @@ InternalRepresentation Parser::parse() {
     if (error > 0) {
         throw ParseFailedException("Parse failed with " + std::to_string(error) + " errors.");
     }
-    return {operations};
+    return {operations, maxSR};
 }
 
 Operation Parser::finishMEMOP(Opcode opcode) {

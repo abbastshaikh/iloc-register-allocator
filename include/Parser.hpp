@@ -1,14 +1,10 @@
 #pragma once
 
 #include <Scanner.hpp>
-#include <Operation.hpp>
+#include <InternalRepresentation.hpp>
 #include <string>
 #include <exception>
 #include <list>
-
-struct InternalRepresentation {
-    std::list<Operation> operations;
-};
 
 class InvalidTokenException : public std::exception {
 public:

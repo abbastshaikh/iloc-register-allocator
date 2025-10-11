@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Parser.hpp>
+#include <InternalRepresentation.hpp>
 
 class Renamer {
 public:
-    void rename(InternalRepresentation& rep);
+    int rename(InternalRepresentation& rep);
 };

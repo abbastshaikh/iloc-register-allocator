@@ -1,7 +1,7 @@
 CXX   := g++
 FLAGS := -std=c++17 -Wall -Iinclude
 
-SRC := src/main.cpp src/scanner.cpp src/parser.cpp src/renamer.cpp
+SRC := src/main.cpp src/scanner.cpp src/parser.cpp src/renamer.cpp src/allocator.cpp
 OBJ := $(SRC:src/%.cpp=build/%.o)
 TARGET := 412alloc
 

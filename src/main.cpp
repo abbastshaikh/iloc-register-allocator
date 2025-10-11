@@ -1,6 +1,7 @@
 #include <Scanner.hpp>
 #include <Parser.hpp>
 #include <Renamer.hpp>
+#include <Allocator.hpp>
 #include <iostream>
 #include <cstring>
 
@@ -27,6 +28,33 @@ void rename (std::string filename) {
          for (Operation op: rep.operations){
             std::cout << op.printVR() << std::endl;
          }
+      } catch (ParseFailedException& e) {
+         std::cerr << "Due to syntax errors, run terminates." << std::endl;
+      }
+   } catch (FileNotFoundException& e) {
+      std::cerr << "ERROR: " << e.what() << std::endl;
+   }
+}
+
+void allocator (std::string filename, int k) {
+
+   try {
+      Scanner scanner (filename);
+
+      try {
+         Parser parser (scanner);
+         InternalRepresentation rep = parser.parse();
+
+         Renamer renamer;
+         int maxLive = renamer.rename(rep);
+
+         Allocator allocator;
+         allocator.allocate(rep, k, maxLive);
+
+         // TODO: print PR
+         // for (Operation op: rep.operations){
+         //    std::cout << op.printPR() << std::endl;
+         // }
       } catch (ParseFailedException& e) {
          std::cerr << "Due to syntax errors, run terminates." << std::endl;
       }

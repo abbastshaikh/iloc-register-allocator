@@ -1,20 +1,22 @@
 #include <Renamer.hpp>
 #include <Operation.hpp>
 #include <algorithm>
+#include <vector>
+#include <iostream>
 
-void Renamer::rename(InternalRepresentation& rep){
+// TODO: Computation of MAXLIVE
+// How to handle use has no definition?
+
+int Renamer::rename(InternalRepresentation& rep){
 
     int VRName = 0;
-    int maxSR = -1;
     int index = rep.operations.size();
+    int maxLive = 0;
+    int live = 0;
 
-    for (Operation op: rep.operations) {
-        maxSR = std::max({maxSR, op.op1.SR, op.op2.SR, op.op3.SR});
-    }
-
-    int SRToVR [maxSR + 1];
-    int LU [maxSR + 1];
-    for (int i = 0; i <= maxSR; i ++) {
+    int SRToVR [rep.maxSR + 1];
+    int LU [rep.maxSR + 1];
+    for (int i = 0; i <= rep.maxSR; i ++) {
         SRToVR[i] = -1;
         LU[i] = -1;
     }
@@ -25,14 +27,16 @@ void Renamer::rename(InternalRepresentation& rep){
         if (op->opcode != Opcode::STORE && o.SR != -1) {
             if (SRToVR[o.SR] == -1) {
                 SRToVR[o.SR] = VRName++;
+                live ++;
             }
             o.VR = SRToVR[o.SR];
             o.NU = LU[o.SR];
             SRToVR[o.SR] = -1;
             LU[o.SR]= -1;
+            live --;
         }
 
-        std::list<Operand*> uses;
+        std::vector<Operand*> uses;
         switch (op->opcode) {
             case Opcode::LOAD:
                 uses.push_back(&op->op1);
@@ -40,8 +44,6 @@ void Renamer::rename(InternalRepresentation& rep){
             case Opcode::STORE:
                 uses.push_back(&op->op1);
                 uses.push_back(&op->op3);
-                break;
-            case Opcode::LOADI:
                 break;
             case Opcode::ADD:
             case Opcode::SUB:
@@ -58,6 +60,7 @@ void Renamer::rename(InternalRepresentation& rep){
         for (Operand* o: uses) {
             if (SRToVR[o->SR] == -1) {
                 SRToVR[o->SR] = VRName++;
+                live ++;
             }
             o->VR = SRToVR[o->SR];
             o->NU = LU[o->SR];
@@ -67,5 +70,9 @@ void Renamer::rename(InternalRepresentation& rep){
             LU[o->SR] = index;
         }
         index--;
+
+        maxLive = std::max(maxLive, live);
     }
+
+    return maxLive;
 }
