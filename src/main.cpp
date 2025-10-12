@@ -36,7 +36,7 @@ void rename (std::string filename) {
    }
 }
 
-void allocator (std::string filename, int k) {
+void allocate (std::string filename, int k) {
 
    try {
       Scanner scanner (filename);
@@ -51,10 +51,9 @@ void allocator (std::string filename, int k) {
          Allocator allocator;
          allocator.allocate(rep, k);
 
-         // TODO: print PR
-         // for (Operation op: rep.operations){
-         //    std::cout << op.printPR() << std::endl;
-         // }
+         for (Operation op: rep.operations){
+            std::cout << op.printPR() << std::endl;
+         }
       } catch (ParseFailedException& e) {
          std::cerr << "Due to syntax errors, run terminates." << std::endl;
       }
@@ -78,9 +77,22 @@ int main (int argc, char *argv[]) {
          return -1;
       }
       rename(argv[2]);
-   } else {
-      std::cerr << "ERROR: Unsupported command line syntax." << std::endl;
+   } else if (argv[1][0] == '-'){
+      std::cerr << "ERROR: Option " << argv[1] << " not supported." << std::endl;
       return -1;
+   } else {
+      int k = std::atoi(argv[1]);
+      if (k < 3) {
+         std::cerr << "ERROR: Invalid value of <k>." << std::endl;
+         return -1;
+      } else if (argc == 2) {
+         std::cerr << "ERROR: Expected filename after <k>." << std::endl;
+         return -1;
+      } else if (argc > 3) {
+         std::cerr << "ERROR: Too many arguments provided." << std::endl;
+         return -1;
+      }
+      allocate(argv[2], k);      
    }
 
    return 0;

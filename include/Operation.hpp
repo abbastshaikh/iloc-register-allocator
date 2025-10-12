@@ -12,7 +12,6 @@ struct Operand {
 };
 
 struct Operation {
-    int line;
     Opcode opcode;
     Operand op1;
     Operand op2;
@@ -55,6 +54,28 @@ struct Operation {
                 return OpcodeNamesPadded[(int) opcode] + "r" + std::to_string(op1.VR) + ", r" + std::to_string(op2.VR) + " => r" + std::to_string(op3.VR);
             case Opcode::OUTPUT:
                 return OpcodeNamesPadded[(int) opcode] + std::to_string(op1.SR);
+            case Opcode::NOP: 
+                return OpcodeNamesPadded[(int) opcode];
+            default:
+                throw std::invalid_argument("Operation has invalid opcode.");
+        }
+    }
+
+    std::string printPR () {
+        switch (this->opcode) {
+            case Opcode::LOAD: 
+            case Opcode::STORE: 
+                return OpcodeNamesPadded[(int) opcode] + "r" + std::to_string(op1.PR) + " => r" + std::to_string(op3.PR);
+            case Opcode::LOADI:
+                return OpcodeNamesPadded[(int) opcode] + std::to_string(op1.SR) + " => r" + std::to_string(op3.PR);
+            case Opcode::ADD: 
+            case Opcode::SUB:
+            case Opcode::MULT: 
+            case Opcode::LSHIFT: 
+            case Opcode::RSHIFT: 
+                return OpcodeNamesPadded[(int) opcode] + "r" + std::to_string(op1.PR) + ", r" + std::to_string(op2.PR) + " => r" + std::to_string(op3.PR);
+            case Opcode::OUTPUT:
+                return OpcodeNamesPadded[(int) opcode] + std::to_string(op1.PR);
             case Opcode::NOP: 
                 return OpcodeNamesPadded[(int) opcode];
             default:

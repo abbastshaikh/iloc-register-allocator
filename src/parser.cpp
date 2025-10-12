@@ -78,7 +78,6 @@ InternalRepresentation Parser::parse() {
 Operation Parser::finishMEMOP(Opcode opcode) {
     
     Operation op;
-    op.line = this->line;
     op.opcode = opcode;
 
     Token token = scanner.nextToken();
@@ -109,7 +108,6 @@ Operation Parser::finishMEMOP(Opcode opcode) {
 Operation Parser::finishLOADI(Opcode opcode) {
     
     Operation op;
-    op.line = this->line;
     op.opcode = opcode;
 
     Token token = scanner.nextToken();
@@ -140,7 +138,6 @@ Operation Parser::finishLOADI(Opcode opcode) {
 Operation Parser::finishARITHOP(Opcode opcode) {
     
     Operation op;
-    op.line = this->line;
     op.opcode = opcode;
 
     Token token = scanner.nextToken();
@@ -182,7 +179,6 @@ Operation Parser::finishARITHOP(Opcode opcode) {
 Operation Parser::finishOUTPUT(Opcode opcode) {
     
     Operation op;
-    op.line = this->line;
     op.opcode = opcode;
 
     Token token = scanner.nextToken();
@@ -201,7 +197,6 @@ Operation Parser::finishOUTPUT(Opcode opcode) {
 
 Operation Parser::finishNOP(Opcode opcode) {
     Operation op;
-    op.line = this->line;
     op.opcode = opcode;
 
     Token token = scanner.nextToken();
