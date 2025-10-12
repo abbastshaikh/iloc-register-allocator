@@ -2,6 +2,8 @@
 #include <Operation.hpp>
 #include <vector>
 #include <stack>
+#include <algorithm>
+#include <iostream>
 
 void Allocator::allocate(InternalRepresentation& rep, int k){
 
@@ -12,6 +14,7 @@ void Allocator::allocate(InternalRepresentation& rep, int k){
     if (rep.maxLive > k) {
         nPR = k - 1;
     }
+    spillLoc = 65536;
 
     // Initialize maps
     VRToPR.assign(rep.maxVR + 1, -1);
@@ -20,11 +23,9 @@ void Allocator::allocate(InternalRepresentation& rep, int k){
     PRNU.assign(nPR, -1);
     PRMark.assign(nPR, false);
 
-    // Initialize stacks
+    // Initialize stack
     PRStack = std::stack<int>();
-    spillLocStack = std::stack<int>();
-    for (int i = 0; i <= rep.maxVR; i ++) spillLocStack.push(65536 - i);
-    for (int i = 0; i < nPR; i ++) PRStack.push(i);
+    for (int i = nPR - 1; i >= 0; i --) PRStack.push(i);
 
     // For each operation
     auto end = rep.operations.end();
@@ -95,7 +96,7 @@ void Allocator::allocate(InternalRepresentation& rep, int k){
     }
 }
 
-int Allocator::getAPR (InternalRepresentation& rep, std::list<Operation>::iterator op, int vr, int nu){
+int Allocator::getAPR (InternalRepresentation& rep, std::list<Operation>::iterator& op, int vr, int nu){
     
     int x;
     
@@ -104,7 +105,7 @@ int Allocator::getAPR (InternalRepresentation& rep, std::list<Operation>::iterat
         PRStack.pop();
     } else {
         x = findAPR();
-        spill(rep, op, vr, x);
+        spill(rep, op, x);
     }
 
     VRToPR[vr] = x;
@@ -139,22 +140,21 @@ void Allocator::freeAPR (int pr){
     PRStack.push(pr);
 }
 
-void Allocator::spill (InternalRepresentation& rep, std::list<Operation>::iterator op, int vr, int pr){
+void Allocator::spill (InternalRepresentation& rep, std::list<Operation>::iterator& op, int pr){
     
-    int loc;
-    
-    loc = spillLocStack.top();
-    spillLocStack.pop();
-    VRToSpillLoc[vr] = loc;
-    rep.operations.insert(std::next(op), 
+    VRToSpillLoc[PRToVR[pr]] = spillLoc;
+    VRToPR[PRToVR[pr]] = -1;
+
+    rep.operations.insert(op, 
         Operation{
             Opcode::LOADI, 
-            {loc, -1, -1, -1},
+            {spillLoc, -1, -1, -1},
             {},
             {-1, -1, nPR, -1}
         }
     );
-    rep.operations.insert(std::next(op), 
+
+    rep.operations.insert(op, 
         Operation{
             Opcode::STORE, 
             {-1, -1, pr, -1},
@@ -162,14 +162,13 @@ void Allocator::spill (InternalRepresentation& rep, std::list<Operation>::iterat
             {-1, -1, nPR, -1}
         }
     );
+    
+    spillLoc += 4;
 }
 
-void Allocator::restore (InternalRepresentation& rep, std::list<Operation>::iterator op, int vr, int pr){
+void Allocator::restore (InternalRepresentation& rep, std::list<Operation>::iterator& op, int vr, int pr){
     
-    spillLocStack.push(VRToSpillLoc[vr]);
-    VRToSpillLoc[vr] = -1;
-
-    rep.operations.insert(std::next(op), 
+    rep.operations.insert(op, 
         Operation{
             Opcode::LOADI, 
             {VRToSpillLoc[vr], -1, -1, -1},
@@ -177,7 +176,8 @@ void Allocator::restore (InternalRepresentation& rep, std::list<Operation>::iter
             {-1, -1, nPR, -1}
         }
     );
-    rep.operations.insert(std::next(op), 
+    
+    rep.operations.insert(op, 
         Operation{
             Opcode::LOAD, 
             {-1, -1, nPR, -1},
@@ -185,4 +185,6 @@ void Allocator::restore (InternalRepresentation& rep, std::list<Operation>::iter
             {-1, -1, pr, -1}
         }
     );
+
+    VRToSpillLoc[vr] = -1;
 }

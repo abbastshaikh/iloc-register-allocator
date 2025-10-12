@@ -75,7 +75,7 @@ struct Operation {
             case Opcode::RSHIFT: 
                 return OpcodeNamesPadded[(int) opcode] + "r" + std::to_string(op1.PR) + ", r" + std::to_string(op2.PR) + " => r" + std::to_string(op3.PR);
             case Opcode::OUTPUT:
-                return OpcodeNamesPadded[(int) opcode] + std::to_string(op1.PR);
+                return OpcodeNamesPadded[(int) opcode] + std::to_string(op1.SR);
             case Opcode::NOP: 
                 return OpcodeNamesPadded[(int) opcode];
             default:
