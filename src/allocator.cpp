@@ -3,7 +3,6 @@
 #include <vector>
 #include <stack>
 #include <algorithm>
-#include <iostream>
 
 void Allocator::allocate(InternalRepresentation& rep, int k){
 

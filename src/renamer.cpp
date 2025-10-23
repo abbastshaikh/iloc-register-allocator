@@ -2,10 +2,6 @@
 #include <Operation.hpp>
 #include <algorithm>
 #include <vector>
-#include <iostream>
-
-// TODO: Computation of MAXLIVE
-// How to handle use has no definition?
 
 void Renamer::rename(InternalRepresentation& rep){
 
@@ -72,6 +68,10 @@ void Renamer::rename(InternalRepresentation& rep){
         index--;
 
         maxLive = std::max(maxLive, live);
+    }
+
+    if (live > 0) {
+        throw RenamingFailedException("Input block uses values from registers that have no prior definition.");
     }
 
     rep.maxVR = VRName;

@@ -10,7 +10,7 @@ void help () {
    std::cout << "Options:" << std::endl;
    std::cout << "   -h: Print this help menu." << std::endl;
    std::cout << "   -x <filename>: Scans, parses, and performs renaming on the ILOC block in <filename> and prints the results to stdout." << std::endl;
-   std::cout << "   <k> <filename>: Scans, parses, and allocates the ILOC block in <filename> to <k> registers and prints the results to stdout." << std::endl;
+   std::cout << "   <k> <filename>: Scans, parses, and allocates the ILOC block in <filename> to <k> registers and prints the results to stdout. k must be an integer between 3 and 64, inclusive." << std::endl;
 }
 
 void rename (std::string filename) {
@@ -22,11 +22,15 @@ void rename (std::string filename) {
          Parser parser (scanner);
          InternalRepresentation rep = parser.parse();
 
-         Renamer renamer;
-         renamer.rename(rep);
+         try {
+            Renamer renamer;
+            renamer.rename(rep);
 
-         for (Operation op: rep.operations){
-            std::cout << op.printVR() << std::endl;
+            for (Operation op: rep.operations){
+               std::cout << op.printVR() << std::endl;
+            }
+         } catch (RenamingFailedException& e) {
+            std::cerr << "ERROR: " << e.what() << std::endl;
          }
       } catch (ParseFailedException& e) {
          std::cerr << "Due to syntax errors, run terminates." << std::endl;
@@ -45,14 +49,18 @@ void allocate (std::string filename, int k) {
          Parser parser (scanner);
          InternalRepresentation rep = parser.parse();
 
-         Renamer renamer;
-         renamer.rename(rep);
+         try {
+            Renamer renamer;
+            renamer.rename(rep);
 
-         Allocator allocator;
-         allocator.allocate(rep, k);
+            Allocator allocator;
+            allocator.allocate(rep, k);
 
-         for (Operation op: rep.operations){
-            std::cout << op.printPR() << std::endl;
+            for (Operation op: rep.operations){
+               std::cout << op.printPR() << std::endl;
+            }
+         } catch (RenamingFailedException& e) {
+            std::cerr << "ERROR: " << e.what() << std::endl;
          }
       } catch (ParseFailedException& e) {
          std::cerr << "Due to syntax errors, run terminates." << std::endl;
@@ -82,7 +90,7 @@ int main (int argc, char *argv[]) {
       return -1;
    } else {
       int k = std::atoi(argv[1]);
-      if (k < 3) {
+      if (k < 3 || k > 64) {
          std::cerr << "ERROR: Invalid value of <k>." << std::endl;
          return -1;
       } else if (argc == 2) {
