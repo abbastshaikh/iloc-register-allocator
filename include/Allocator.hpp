@@ -11,6 +11,7 @@ private:
     int spillLoc;
     std::vector<int> VRToPR;
     std::vector<int> VRToSpillLoc;
+    std::vector<int> VRToImmediate;
     std::vector<int> PRToVR;
     std::vector<int> PRNU;
     std::vector<bool> PRMark;
